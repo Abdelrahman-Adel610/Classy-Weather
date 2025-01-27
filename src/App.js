@@ -5,7 +5,12 @@ import { Card } from "./Card";
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { location: "", isLoading: false, country: "", weather: {} };
+    this.state = {
+      location: localStorage.getItem("location") || "",
+      isLoading: false,
+      country: "",
+      weather: {},
+    };
     this.getWeather = this.getWeather.bind(this);
   }
   async getWeather() {
@@ -36,6 +41,10 @@ class App extends React.Component {
       this.setState({ isLoading: false });
     }
   }
+  componentDidMount = () => {
+    this.setState({ location: localStorage.getItem("location") || "" });
+    this.getWeather();
+  };
   render() {
     return (
       <div className="app">
@@ -44,8 +53,11 @@ class App extends React.Component {
           placeholder="Search for Location"
           value={this.state.location}
           onChange={(e) => {
-            this.setState({ ...this.state, location: e.target.value });
+            this.setState({ location: e.target.value });
+            if (e.target.value.length <= 2)
+              return this.setState({ weather: {} });
             this.getWeather();
+            localStorage.setItem("location", e.target.value);
           }}
         />
         {this.state.isLoading ? <p>Loading...</p> : ""}
